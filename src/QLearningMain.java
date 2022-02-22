@@ -13,6 +13,7 @@ public class QLearningMain {
         int rows = 0, cols = 0;
 
         HashMap<Coordinate, Integer> gridMap = new HashMap<>();
+        HashMap<Coordinate, HashMap<Action, Float>> qValues = new HashMap<>();
         List<String []> elements = new ArrayList<>();
 
         try {
@@ -55,7 +56,7 @@ public class QLearningMain {
      * @param grid the 2D-array representation of the grid
      * @return the map representation of the grid
      */
-    public static HashMap<Coordinate, Integer> createGridMap(int [][] grid) {
+    public static HashMap<Coordinate, Integer> createGridMap(int [][] grid){
         HashMap<Coordinate, Integer> gridMap = new HashMap<>();
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[row].length; col++) {
@@ -63,5 +64,45 @@ public class QLearningMain {
             }
         }
         return gridMap;
+    }
+
+    public void runQLearning(List<String []> elements, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap){
+        //for some time t
+        int startY = (int) Math.random() * elements.size();
+        int startX = (int) Math.random() * elements.get(0).length;
+
+        while(elements.get(startY)[startX] != "0"){
+            startY = (int) Math.random() * elements.size();
+            startX = (int) Math.random() * elements.get(0).length;
+        }
+
+        Coordinate startCoordinate = new Coordinate(startX, startY);
+
+        Agent agent = new Agent();
+
+        int randMove = (int) Math.floor(Math.random() * 4);
+
+        Action startAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
+
+        //while havent reached the goal state
+        agent.qFunction(startCoordinate, startAction, qValues);
+
+        //take move
+        Action move = agent.getMove(startCoordinate, startAction, qValues);
+
+        //move to next state
+        // if(out of bounds)
+        // then dont change coordinate but change qValue at location move to bad
+        Coordinate newStart = startCoordinate.move(move);
+
+        if(!gridMap.containsKey(newStart)){
+            //recalculate q values
+        }
+        else{
+            startCoordinate = newStart;
+        }
+
+
+
     }
 }

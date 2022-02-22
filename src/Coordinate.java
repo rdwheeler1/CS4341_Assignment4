@@ -8,6 +8,17 @@ public class Coordinate {
         this.y = y;
     }
 
+    public Coordinate move(Action a){
+        Coordinate newCoord = null;
+        switch (a){
+            case UP -> newCoord = new Coordinate(this.x, this.y++);
+            case DOWN -> newCoord = new Coordinate(this.x, this.y--);
+            case RIGHT -> newCoord = new Coordinate(this.x++, this.y);
+            case LEFT -> newCoord = new Coordinate(this.x--, this.y);
+        }
+        return newCoord;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
