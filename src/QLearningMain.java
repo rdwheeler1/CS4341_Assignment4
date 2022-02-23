@@ -28,6 +28,8 @@ public class QLearningMain {
             }
             int [][] grid = createGrid(elements, rows, cols);
             gridMap = createGridMap(grid);
+            initializeQValues(gridMap, qValues);
+            runQLearning(gridMap, qValues, desiredProb, reward);
             scanner.close();
         } catch (IOException i) {
             System.out.println("File Exception");
@@ -66,43 +68,74 @@ public class QLearningMain {
         return gridMap;
     }
 
-    public void runQLearning(List<String []> elements, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap){
-        //for some time t
-        int startY = (int) Math.random() * elements.size();
-        int startX = (int) Math.random() * elements.get(0).length;
+    /**
+     * Initializes the Q-values of the map
+     * @param gridMap the map representation of the grid
+     * @param qValues the Q-values of the map
+     */
+    public static void initializeQValues(HashMap<Coordinate, Integer> gridMap,
+                                         HashMap<Coordinate, HashMap<Action, Float>> qValues) {
+        Action [] actions = {Action.UP, Action.LEFT, Action.RIGHT, Action.DOWN};
+        HashMap<Action, Float> actionMap = new HashMap<>();
 
-        while(elements.get(startY)[startX] != "0"){
-            startY = (int) Math.random() * elements.size();
-            startX = (int) Math.random() * elements.get(0).length;
+        for (Action action : actions) {
+            actionMap.put(action, 0.0F);
         }
 
-        Coordinate startCoordinate = new Coordinate(startX, startY);
+        for (Coordinate key : gridMap.keySet()) {
+            qValues.put(key, actionMap);
+        }
+    }
+
+    public static void runQLearning(HashMap<Coordinate, Integer> gridMap,
+                                    HashMap<Coordinate, HashMap<Action, Float>> qValues, float desiredProb,
+                                    float reward) {
+
+        Random random = new Random();
+        List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
+        Coordinate randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+
+        if (gridMap.get(randomStartCoordinate) != 0) {
+            randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+        }
+
+        System.out.println("RANDOM START: (" + randomStartCoordinate.getX() + "," +
+                randomStartCoordinate.getY() + ")");
+
+//        //for some time t
+//        int startY = (int) Math.random() * elements.size();
+//        int startX = (int) Math.random() * elements.get(0).length;
+//
+//        while(!Objects.equals(elements.get(startY)[startX], "0")){
+//            startY = (int) Math.random() * elements.size();
+//            startX = (int) Math.random() * elements.get(0).length;
+//        }
+//        Coordinate startCoordinate = new Coordinate(startX, startY);
 
         Agent agent = new Agent();
-
-        int randMove = (int) Math.floor(Math.random() * 4);
-
-        Action startAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
+        Action bestAction = agent.getBestAction(randomStartCoordinate, qValues);
+//        int randMove = (int) Math.floor(Math.random() * 4);
+//        Action startAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
 
         //while havent reached the goal state
-        agent.qFunction(startCoordinate, startAction, qValues);
+        agent.qFunction(randomStartCoordinate, bestAction, qValues, reward);
 
         //take move
-        Action move = agent.getMove(startCoordinate, startAction, qValues);
+        Action move = agent.getMove(randomStartCoordinate, bestAction, qValues);
+
+        // This moves the agent to next state from the highest Q-value
+        agent.move(gridMap, randomStartCoordinate, desiredProb, bestAction);
 
         //move to next state
         // if(out of bounds)
         // then dont change coordinate but change qValue at location move to bad
-        Coordinate newStart = startCoordinate.move(move);
+        Coordinate newStart = randomStartCoordinate.move(move);
 
         if(!gridMap.containsKey(newStart)){
             //recalculate q values
         }
         else{
-            startCoordinate = newStart;
+            randomStartCoordinate = newStart;
         }
-
-
-
     }
 }

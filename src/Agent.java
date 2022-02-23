@@ -1,54 +1,109 @@
-import javax.print.attribute.standard.PresentationDirection;
-import java.lang.invoke.DirectMethodHandle$Holder;
-import java.util.HashMap;
+import java.util.*;
 
 public class Agent {
 
-    // TODO: Possibly move function to Main(?)
-    // TODO: Add Action as a parameter
-    public void qFunction(Coordinate state, Action action, HashMap<Coordinate, HashMap<Action, Float>> qValues){
-        // TODO: Add Q(s, a) equation
+    // TODO: Add epsilon-greedy exploration
+    public void qFunction(Coordinate state, Action action, HashMap<Coordinate, HashMap<Action, Float>> qValues,
+                          float reward){
         // New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
-        qEquation(state, action, qValues);
+        qEquation(state, action, qValues, reward);
     }
 
-    public void qEquation(Coordinate s, Action a, HashMap<Coordinate, HashMap<Action, Float>> qValues){
+    public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
+            HashMap<Action, Float>> qValues, float reward){
 
-        float currentQValue = qValues.get(s).get(a);
-        float alpha = 0.4F;
-        float reward = 0.4F;
-        float gamma = 0.4F;
-        float max = 0.0F;
+        HashMap<Action, Float> qValueMap = qValues.get(currentState);
+        float currentQValue = qValues.get(currentState).get(action);
+        float alpha = 0.1F;
+        float gamma = 0.9F;
+        float maxQValue = Collections.max(qValueMap.values());
 
-        if(a == Action.UP){
-            max = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
-                    qValues.get(s).get(Action.UP));
-        }
-        else if (a == Action.DOWN){
-            max = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
-                    qValues.get(s).get(Action.DOWN));
-        }
-        else if(a == Action.LEFT){
-            max = Math.fma(qValues.get(s).get(Action.DOWN), qValues.get(s).get(Action.LEFT),
-                    qValues.get(s).get(Action.UP));
-        }
-        else if(a == Action.RIGHT){
-            max = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.DOWN),
-                    qValues.get(s).get(Action.UP));
+        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
+            if (qEntry.getValue() == maxQValue) {
+                action = qEntry.getKey();
+            }
         }
 
-        float newQValue = currentQValue + alpha * (reward + gamma * max - currentQValue);
+//        if(a == Action.UP){
+//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
+//                    qValues.get(s).get(Action.UP));
+//        }
+//        else if (a == Action.DOWN){
+//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
+//                    qValues.get(s).get(Action.DOWN));
+//        }
+//        else if(a == Action.LEFT){
+//            maxQValue = Math.fma(qValues.get(s).get(Action.DOWN), qValues.get(s).get(Action.LEFT),
+//                    qValues.get(s).get(Action.UP));
+//        }
+//        else if(a == Action.RIGHT){
+//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.DOWN),
+//                    qValues.get(s).get(Action.UP));
+//        }
 
-        qValues.get(s).put(a,newQValue);
-
+        float newQValue = currentQValue + alpha * (reward + (gamma * maxQValue) - currentQValue);
+        qValues.get(currentState).put(action, newQValue);
+        System.out.println("NEW: QVALUE: " + qValues.get(currentState).get(action));
     }
 
-    public void move (float desiredProb, String action) {
+    /**
+     * Gets the best Action based on current state and current Q-values
+     * @param currentState the current state of the agent
+     * @param qValues the current Q-values of the board
+     * @return the best Action the agent will take
+     */
+    public Action getBestAction(Coordinate currentState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
+        Action bestAction = null;
+        HashMap<Action, Float> qValueMap = qValues.get(currentState);
+        float maxQ = Collections.max(qValueMap.values());
+
+        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
+            if (qEntry.getValue() == maxQ) {
+                bestAction = qEntry.getKey();
+            }
+        }
+        return bestAction;
     }
 
-    public float getMaxQ(GridWorld qMap, Coordinate nextState, String nextAction) {
-        float currentQValue = 0;
-        return currentQValue;
+    /**
+     * Moves the agent to either the desired Action or a deflected Action
+     * @param gridMap the map representation of the grid
+     * @param currentState the current state of the agent
+     * @param desiredProb the desired probability of moving in the desired Action
+     * @param action the desired Action
+     */
+    public void move (HashMap<Coordinate, Integer> gridMap, Coordinate currentState, float desiredProb, Action action) {
+        Random random = new Random();
+        float chance = random.nextFloat(1);
+        float deflectionChance = (1 - desiredProb) / 2;
+        Coordinate newState = null;
+
+        // Takes the desired action
+        if (chance < desiredProb) {
+            newState = switch (action) {
+                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
+                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
+                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
+                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            };
+        // Takes a deflected action
+        } else if (chance < desiredProb + deflectionChance) {
+            newState = switch (deflectLeft(action)) {
+                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
+                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
+                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
+                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            };
+        // Takes the other deflected action
+        } else if (chance < (desiredProb + deflectionChance) + deflectionChance) {
+            newState = switch (deflectRight(action)) {
+                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
+                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
+                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
+                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            };
+        }
+        gridMap.put(newState, gridMap.get(newState));
     }
 
     public Action getMove(Coordinate startCoord, Action prevAction , HashMap<Coordinate, HashMap<Action, Float>> qValues){

@@ -11,12 +11,20 @@ public class Coordinate {
     public Coordinate move(Action a){
         Coordinate newCoord = null;
         switch (a){
-            case UP -> newCoord = new Coordinate(this.x, this.y++);
-            case DOWN -> newCoord = new Coordinate(this.x, this.y--);
+            case UP -> newCoord = new Coordinate(this.x, this.y--);
+            case DOWN -> newCoord = new Coordinate(this.x, this.y++);
             case RIGHT -> newCoord = new Coordinate(this.x++, this.y);
             case LEFT -> newCoord = new Coordinate(this.x--, this.y);
         }
         return newCoord;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     @Override
