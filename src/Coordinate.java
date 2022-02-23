@@ -9,14 +9,23 @@ public class Coordinate {
     }
 
     public Coordinate move(Action a){
-        Coordinate newCoord = null;
+        int x = this.x;
+        int y = this.y;
         switch (a){
-            case UP -> newCoord = new Coordinate(this.x, this.y--);
-            case DOWN -> newCoord = new Coordinate(this.x, this.y++);
-            case RIGHT -> newCoord = new Coordinate(this.x++, this.y);
-            case LEFT -> newCoord = new Coordinate(this.x--, this.y);
+            case UP:
+                y--;
+                break;
+            case DOWN:
+                y++;
+                break;
+            case RIGHT:
+                x++;
+                break;
+            case LEFT:
+                    x--;
+                    break;
         }
-        return newCoord;
+        return new Coordinate(x,y);
     }
 
     public int getX() {

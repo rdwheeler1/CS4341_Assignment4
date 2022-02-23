@@ -118,7 +118,7 @@ public class Agent {
                 case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
             };
         }
-        gridMap.put(newState, gridMap.get(newState));
+        //gridMap.put(newState, gridMap.get(newState));
     }
 
     public Action getMove(Coordinate startCoord, Action prevAction , HashMap<Coordinate, HashMap<Action, Float>> qValues){
@@ -129,7 +129,8 @@ public class Agent {
             float a2 = qValues.get(startCoord).get(Action.LEFT);
             float a3 = qValues.get(startCoord).get(Action.UP);
 
-            float max = Math.fma(a1,a2,a3);
+            float max = Math.max(a1,a2);
+            max = Math.max(max,a3);
 
             if(max == a1){
                 move = Action.RIGHT;
@@ -147,7 +148,8 @@ public class Agent {
             float a2 = qValues.get(startCoord).get(Action.LEFT);
             float a3 = qValues.get(startCoord).get(Action.DOWN);
 
-            float max = Math.fma(a1,a2,a3);
+            float max = Math.max(a1,a2);
+            max = Math.max(max,a3);
 
             if(max == a1){
                 move = Action.RIGHT;
@@ -164,7 +166,8 @@ public class Agent {
             float a2 = qValues.get(startCoord).get(Action.LEFT);
             float a3 = qValues.get(startCoord).get(Action.UP);
 
-            float max = Math.fma(a1,a2,a3);
+            float max = Math.max(a1,a2);
+            max = Math.max(max,a3);
 
             if(max == a1){
                 move = Action.DOWN;
@@ -181,7 +184,8 @@ public class Agent {
             float a2 = qValues.get(startCoord).get(Action.LEFT);
             float a3 = qValues.get(startCoord).get(Action.UP);
 
-            float max = Math.fma(a1,a2,a3);
+            float max = Math.max(a1,a2);
+            max = Math.max(max,a3);
 
             if(max == a1){
                 move = Action.DOWN;
@@ -202,10 +206,18 @@ public class Agent {
     public Action deflectLeft(Action a){
         Action newAction = a;
         switch (a){
-            case LEFT -> newAction = Action.DOWN;
-            case RIGHT -> newAction = Action.UP;
-            case DOWN -> newAction = Action.RIGHT;
-            case UP -> newAction = Action.LEFT;
+            case LEFT:
+                newAction = Action.DOWN;
+                break;
+            case RIGHT:
+                newAction = Action.UP;
+                break;
+            case DOWN:
+                newAction = Action.RIGHT;
+                break;
+            case UP:
+                newAction = Action.LEFT;
+                break;
         }
         return newAction;
     }
@@ -213,10 +225,18 @@ public class Agent {
     public Action deflectRight(Action a){
         Action newAction = a;
         switch (a){
-            case LEFT -> newAction = Action.UP;
-            case RIGHT -> newAction = Action.DOWN;
-            case DOWN -> newAction = Action.LEFT;
-            case UP -> newAction = Action.RIGHT;
+            case LEFT:
+                newAction = Action.UP;
+                break;
+            case RIGHT:
+                newAction = Action.DOWN;
+                break;
+            case DOWN:
+                newAction = Action.LEFT;
+                break;
+            case UP:
+                newAction = Action.RIGHT;
+                break;
         }
         return newAction;
     }
