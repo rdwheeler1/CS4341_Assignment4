@@ -13,6 +13,7 @@ public class Agent {
             HashMap<Action, Float>> qValues, float reward){
 
         HashMap<Action, Float> qValueMap = qValues.get(currentState);
+        HashMap<Action, Float> copyOfCurrentQMap = qValues.get(currentState);
         float currentQValue = qValues.get(currentState).get(action);
         float alpha = 0.1F;
         float gamma = 0.9F;
@@ -40,10 +41,24 @@ public class Agent {
 //            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.DOWN),
 //                    qValues.get(s).get(Action.UP));
 //        }
-
         float newQValue = currentQValue + alpha * (reward + (gamma * maxQValue) - currentQValue);
+
+        if (qValues.get(currentState).get(action) == currentQValue) {
+            HashMap<Action, Float> actionMap = new HashMap<>();
+            for (Action actionKey  : copyOfCurrentQMap.keySet()) {
+                if (actionKey == action) {
+                    actionMap.put(actionKey, newQValue);
+                } else {
+                    actionMap.put(actionKey, copyOfCurrentQMap.get(actionKey));
+                }
+            }
+            qValues.put(currentState, actionMap);
+        }
+
         qValues.get(currentState).put(action, newQValue);
-        System.out.println("NEW: QVALUE: " + qValues.get(currentState).get(action));
+        System.out.println("NEW: QVALUE: " + qValues.get(currentState));
+        System.out.println("TEST: " + qValues.get(new Coordinate(0,0)));
+
     }
 
     /**
