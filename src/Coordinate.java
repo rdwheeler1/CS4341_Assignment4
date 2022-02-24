@@ -8,6 +8,12 @@ public class Coordinate {
         this.y = y;
     }
 
+    public Coordinate copy(){
+        int x = this.x;
+        int y = this.y;
+        return new Coordinate(x,y);
+    }
+
     public Coordinate move(Action a){
         int x = this.x;
         int y = this.y;

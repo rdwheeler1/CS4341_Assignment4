@@ -2,20 +2,29 @@ import java.util.*;
 
 public class Agent {
 
+    private float reward;
+    private float gamma;
+    private float stepSize;
+
+    public Agent(float reward, float gamma){
+        this.reward = reward;
+        this.gamma = gamma;
+        this.stepSize = 0.1F;
+    }
+
     // TODO: Add epsilon-greedy exploration
-    public void qFunction(Coordinate state, Action action, HashMap<Coordinate, HashMap<Action, Float>> qValues,
-                          float reward){
+    public void qFunction(Coordinate state, Action action, HashMap<Coordinate, HashMap<Action, Float>> qValues){
         // New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
-        qEquation(state, action, qValues, reward);
+        qEquation(state, action, qValues);
     }
 
     public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
-            HashMap<Action, Float>> qValues, float reward){
+            HashMap<Action, Float>> qValues){
 
         HashMap<Action, Float> qValueMap = qValues.get(currentState);
         HashMap<Action, Float> copyOfCurrentQMap = qValues.get(currentState);
         float currentQValue = qValues.get(currentState).get(action);
-        float alpha = 0.1F;
+        float alpha = reward;
         float gamma = 0.9F;
         float maxQValue = Collections.max(qValueMap.values());
 
@@ -81,13 +90,38 @@ public class Agent {
     }
 
     /**
+     * return the highest q value of a given state
+     * @param givenState given state
+     * @param qValues map of queue values
+     * @return the highest q value
+     */
+    public float getHighestQValue(Coordinate givenState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
+        Action bestAction = null;
+        HashMap<Action, Float> qValueMap = qValues.get(givenState);
+        float maxQ = Collections.max(qValueMap.values());
+
+        return maxQ;
+    }
+
+    public void updateQValue(Coordinate updatedState, Coordinate newState, Action prevAction, HashMap<Coordinate, HashMap<Action, Float>> qValues){
+        float updatedValue = qValues.get(updatedState).get(prevAction);
+        float newValue = getHighestQValue(newState, qValues);
+
+        qValues.get(updatedState).replace(prevAction, calculateQValue(updatedValue, newValue));
+    }
+
+    public float calculateQValue(float oldValue, float newValue){
+        //New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
+        return (oldValue + stepSize * (reward + gamma * (newValue) - oldValue));
+    }
+
+    /**
      * Moves the agent to either the desired Action or a deflected Action
-     * @param gridMap the map representation of the grid
      * @param currentState the current state of the agent
      * @param desiredProb the desired probability of moving in the desired Action
      * @param action the desired Action
      */
-    public void move (HashMap<Coordinate, Integer> gridMap, Coordinate currentState, float desiredProb, Action action) {
+    public Coordinate move (Coordinate currentState, float desiredProb, Action action) {
         Random random = new Random();
         float chance = random.nextFloat(1);
         float deflectionChance = (1 - desiredProb) / 2;
@@ -118,7 +152,7 @@ public class Agent {
                 case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
             };
         }
-        //gridMap.put(newState, gridMap.get(newState));
+        return newState;
     }
 
     public Action getMove(Coordinate startCoord, Action prevAction , HashMap<Coordinate, HashMap<Action, Float>> qValues){

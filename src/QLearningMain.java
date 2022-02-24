@@ -94,50 +94,94 @@ public class QLearningMain {
         }
     }
 
-    public static void runQLearning(HashMap<Coordinate, Integer> gridMap,
-                                    HashMap<Coordinate, HashMap<Action, Float>> qValues, float desiredProb,
-                                    float reward) {
-        Agent agent = new Agent();
+//    public static void runQLearning(HashMap<Coordinate, Integer> gridMap,
+//                                    HashMap<Coordinate, HashMap<Action, Float>> qValues, float desiredProb,
+//                                    float reward) {
+//        Agent agent = new Agent(reward, 1.0F);
+//
+//        Random random = new Random();
+//        PriorityQueue<Coordinate> currentCoordinate = new PriorityQueue<>();
+//        List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
+//        Coordinate randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+//
+//        if (gridMap.get(randomStartCoordinate) != 0) {
+//            randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+//        }
+//
+//        System.out.println("RANDOM START: (" + randomStartCoordinate.getX() + "," +
+//                randomStartCoordinate.getY() + ")");
+//
+//        int randMove = (int) Math.floor(Math.random() * 4);
+//        Action startAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
+//        Action prevMove = startAction;
+//
+//        System.out.println(gridMap.get(randomStartCoordinate));
+//        currentCoordinate.add(randomStartCoordinate);
+//
+//        //while havent reached the goal state
+//        while (gridMap.get(randomStartCoordinate) == 0) {
+//
+//            //Action bestAction = agent.getBestAction(randomStartCoordinate, qValues);
+//            agent.qFunction(randomStartCoordinate, prevMove, qValues);
+//
+//            //take move
+//            Action move = agent.getMove(randomStartCoordinate, prevMove, qValues);
+//
+//            //move to next state
+//            // if(out of bounds)
+//            // then dont change coordinate but change qValue at location move to bad
+//            Coordinate newStart = randomStartCoordinate.move(move);
+//
+//            if (!gridMap.containsKey(newStart)) {
+////                qValues.get(randomStartCoordinate).put(prevMove,Float.MIN_VALUE);
+//            } else {
+//                agent.move(gridMap, randomStartCoordinate, desiredProb, prevMove, currentCoordinate);
+//                agent.updateQValue();
+//                randomStartCoordinate = newStart;
+//                prevMove = move;
+//            }
+//        }
+//        System.out.println(randomStartCoordinate.getX() + " ," + randomStartCoordinate.getY());
+//    }
 
+    public static void runQLearning(HashMap<Coordinate, Integer> gridMap, HashMap<Coordinate,
+                HashMap<Action, Float>> qValues, float desiredProb, float reward) {
+        Agent agent = new Agent(reward, 1.0F);
         Random random = new Random();
+
+        //list of coordinates with top being current coordinate
+        PriorityQueue<Coordinate> coordinateQueue = new PriorityQueue<>();
+
+
         List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
-        Coordinate randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+        Coordinate currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
 
-        if (gridMap.get(randomStartCoordinate) != 0) {
-            randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
+        if (gridMap.get(currentCoordinate) != 0) {
+            currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
         }
 
-        System.out.println("RANDOM START: (" + randomStartCoordinate.getX() + "," +
-                randomStartCoordinate.getY() + ")");
+        System.out.println("RANDOM START: (" + currentCoordinate.getX() + "," +
+                currentCoordinate.getY() + ")");
 
-        int randMove = (int) Math.floor(Math.random() * 4);
-        Action startAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
-        Action prevMove = startAction;
+         int randMove = (int) Math.floor(Math.random() * 4);
+        Action currentAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
 
-        System.out.println(gridMap.get(randomStartCoordinate));
+        System.out.println(gridMap.get(currentCoordinate));
 
-        //while havent reached the goal state
-        while (gridMap.get(randomStartCoordinate) == 0) {
+        //while havent reached a goal state explore
+        while(gridMap.get(currentCoordinate) == 0){
 
-            //Action bestAction = agent.getBestAction(randomStartCoordinate, qValues);
-            agent.qFunction(randomStartCoordinate, prevMove, qValues, reward);
+            //choose best action from here (with epsilon value)
+            Action nextAction = agent.getBestAction(currentCoordinate,qValues);
 
-            //take move
-            Action move = agent.getMove(randomStartCoordinate, prevMove, qValues);
+            //take that action
+            Coordinate prevCoordinate = currentCoordinate.copy();
+            currentCoordinate = agent.move(currentCoordinate,desiredProb,nextAction);
 
-            //move to next state
-            // if(out of bounds)
-            // then dont change coordinate but change qValue at location move to bad
-            Coordinate newStart = randomStartCoordinate.move(move);
+            //update previous state with max values from state im on now
+            agent.updateQValue(prevCoordinate, currentCoordinate, nextAction, qValues);
 
-            if (!gridMap.containsKey(newStart)) {
-//                qValues.get(randomStartCoordinate).put(prevMove,Float.MIN_VALUE);
-            } else {
-                agent.move(gridMap, randomStartCoordinate, desiredProb, prevMove);
-                randomStartCoordinate = newStart;
-                prevMove = move;
-            }
         }
-        System.out.println(randomStartCoordinate.getX() + " ," + randomStartCoordinate.getY());
     }
+
 }
