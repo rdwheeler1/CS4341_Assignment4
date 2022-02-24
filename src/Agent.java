@@ -19,11 +19,11 @@ public class Agent {
         float gamma = 0.9F;
         float maxQValue = Collections.max(qValueMap.values());
 
-        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
-            if (qEntry.getValue() == maxQValue) {
-                action = qEntry.getKey();
-            }
-        }
+//        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
+//            if (qEntry.getValue() == maxQValue) {
+//                action = qEntry.getKey();
+//            }
+//        }
 
 //        if(a == Action.UP){
 //            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
@@ -56,9 +56,9 @@ public class Agent {
         }
 
         qValues.get(currentState).put(action, newQValue);
+        System.out.println("CURRENT STATE: (" + currentState.getX() + "," + currentState.getY() + ")");
         System.out.println("NEW: QVALUE: " + qValues.get(currentState));
-        System.out.println("TEST: " + qValues.get(new Coordinate(0,0)));
-
+        System.out.println();
     }
 
     /**

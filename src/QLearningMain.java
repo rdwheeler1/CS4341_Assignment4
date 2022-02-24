@@ -1,7 +1,5 @@
 import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
-import java.time.Clock;
 import java.util.*;
 
 public class QLearningMain {
@@ -31,12 +29,10 @@ public class QLearningMain {
             int [][] grid = createGrid(elements, rows, cols);
             gridMap = createGridMap(grid);
             initializeQValues(gridMap, qValues);
-
             long startTime = System.currentTimeMillis();
             while ((System.currentTimeMillis() - startTime) / 1000 < timeToRun){
-                runQLearning(gridMap, qValues, desiredProb, reward);
+                runQLearning(gridMap, qValues, desiredProb, reward, rows, cols);
             }
-
             scanner.close();
         } catch (IOException i) {
             System.out.println("File Exception");
@@ -96,9 +92,8 @@ public class QLearningMain {
 
     public static void runQLearning(HashMap<Coordinate, Integer> gridMap,
                                     HashMap<Coordinate, HashMap<Action, Float>> qValues, float desiredProb,
-                                    float reward) {
+                                    float reward, int row, int col) {
         Agent agent = new Agent();
-
         Random random = new Random();
         List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
         Coordinate randomStartCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
@@ -128,16 +123,145 @@ public class QLearningMain {
             //move to next state
             // if(out of bounds)
             // then dont change coordinate but change qValue at location move to bad
-            Coordinate newStart = randomStartCoordinate.move(move);
+            // TODO: If out of bounds, choose the next best action from current state.
+            // TODO: If it doesn't get the best one, infinite loop between states
+            if (isOutOfBounds(row, col, randomStartCoordinate, move)) {
+                move = getVerifiedAction(row, col, randomStartCoordinate, move);
+            }
 
-            if (!gridMap.containsKey(newStart)) {
-//                qValues.get(randomStartCoordinate).put(prevMove,Float.MIN_VALUE);
-            } else {
-                agent.move(gridMap, randomStartCoordinate, desiredProb, prevMove);
-                randomStartCoordinate = newStart;
-                prevMove = move;
+            Coordinate newStart = randomStartCoordinate.move(move);
+            agent.move(gridMap, randomStartCoordinate, desiredProb, prevMove);
+            randomStartCoordinate = newStart;
+            prevMove = move;
+        }
+        System.out.println(randomStartCoordinate.getX() + "," + randomStartCoordinate.getY());
+    }
+
+    /**
+     * Verifies that the agent does not go out-of-bounds
+     * @param row the number of rows
+     * @param col the number of columns
+     * @param state the current state of the agent
+     * @param action the action that the agent plans to take
+     * @return true if the agent goes out-of-bounds, otherwise false
+     */
+    public static boolean isOutOfBounds(int row, int col, Coordinate state, Action action) {
+        boolean result = false;
+        // Upper Bound
+        if (action == Action.UP) {
+            if (state.getY() - 1 < 0) {
+                if (state.getX() == col - 1) {
+                    result = true;
+                } else if (state.getX() == 0) {
+                    result = true;
+                } else {
+                    result = true;
+                }
+            }
+        // Lower Bound
+        } else if (action == Action.DOWN) {
+            if (state.getY() + 1 > row - 1) {
+                if (state.getX() == 0) {
+                    result = true;
+                } else if (state.getX() == col - 1) {
+                    result = true;
+                } else {
+                    result = true;
+                }
+            }
+        // Left Bound
+        } else if (action == Action.LEFT) {
+            if (state.getX()  - 1 < 0) {
+                if (state.getY() ==  0) {
+                    result = true;
+                } else if (state.getY() == row - 1) {
+                    result = true;
+                } else  {
+                    result = true;
+                }
+            }
+        // Right Bound
+        } else if (action == Action.RIGHT) {
+            if (state.getX() + 1 > col - 1) {
+                if (state.getY() == 0) {
+                    result = true;
+                } else if (state.getY() == row - 1) {
+                    result = true;
+                } else {
+                    result = true;
+                }
             }
         }
-        System.out.println(randomStartCoordinate.getX() + " ," + randomStartCoordinate.getY());
+        return result;
+    }
+
+    /**
+     * Takes the action that doesn't have the agent go out-of-bounds
+     * @param row the number of rows
+     * @param col the number of columns
+     * @param state the current state of the agent
+     * @param action the action the agents plans to take
+     * @return the action that the agent will take that doesn't have it go out-of-bounds
+     */
+    public static Action getVerifiedAction(int row, int col, Coordinate state, Action action) {
+        Action nextAction = null;
+        // Upper Bound
+        if (action == Action.UP) {
+            if (state.getY() - 1 < 0) {
+                if (state.getX() == col - 1) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.DOWN, Action.LEFT}[randMove];
+                } else if (state.getX() == 0) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.DOWN, Action.RIGHT}[randMove];
+                } else {
+                    int randMove = (int) Math.floor(Math.random() * 3);
+                    nextAction = new Action[]{Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
+                }
+            }
+        // Lower Bound
+        } else if (action == Action.DOWN) {
+            if (state.getY() + 1 > row - 1) {
+                if (state.getX() == 0) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.UP, Action.RIGHT}[randMove];
+                } else if (state.getX() == col - 1) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.UP, Action.LEFT}[randMove];
+                } else {
+                    int randMove = (int) Math.floor(Math.random() * 3);
+                    nextAction = new Action[]{Action.UP, Action.LEFT, Action.RIGHT}[randMove];
+                }
+            }
+        // Left Bound
+        } else if (action == Action.LEFT) {
+            if (state.getX()  - 1 < 0) {
+                if (state.getY() ==  0) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.DOWN, Action.RIGHT}[randMove];
+                } else if (state.getY() == row - 1) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.UP, Action.RIGHT}[randMove];
+                } else  {
+                    int randMove = (int) Math.floor(Math.random() * 3);
+                    nextAction = new Action[]{Action.UP, Action.DOWN, Action.RIGHT}[randMove];
+                }
+            }
+        // Right Bound
+        } else if (action == Action.RIGHT) {
+            if (state.getX() + 1 > col - 1) {
+                if (state.getY() == 0) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.DOWN, Action.LEFT}[randMove];
+                } else if (state.getY() == row - 1) {
+                    int randMove = (int) Math.floor(Math.random() * 2);
+                    nextAction = new Action[]{Action.UP, Action.LEFT}[randMove];
+                } else {
+                    int randMove = (int) Math.floor(Math.random() * 3);
+                    nextAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT}[randMove];
+                }
+            }
+        }
+        return nextAction;
     }
 }
