@@ -83,6 +83,7 @@ public class QLearningMain {
     public static void initializeQValues(HashMap<Coordinate, Integer> gridMap,
                                          HashMap<Coordinate, HashMap<Action, Float>> qValues) {
         Action [] actions = {Action.UP, Action.LEFT, Action.RIGHT, Action.DOWN};
+        Action [] goalActions = {Action.UP, Action.LEFT, Action.RIGHT, Action.DOWN};
         HashMap<Action, Float> actionMap = new HashMap<>();
 
         for (Action action : actions) {
@@ -90,7 +91,16 @@ public class QLearningMain {
         }
 
         for (Coordinate key : gridMap.keySet()) {
-            qValues.put(key, actionMap);
+            if (gridMap.get(key) == 0){
+                qValues.put(key, actionMap);
+            }
+            else{
+                HashMap<Action, Float> goalActionMap = new HashMap<>();
+                for (Action action: goalActions){
+                    goalActionMap.put(action, gridMap.get(key).floatValue());
+                }
+                qValues.put(key, goalActionMap);
+            }
         }
     }
 
@@ -160,13 +170,13 @@ public class QLearningMain {
             currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
         }
 
-        System.out.println("RANDOM START: (" + currentCoordinate.getX() + "," +
-                currentCoordinate.getY() + ")");
+        System.out.println("RANDOM START: (" + (currentCoordinate.getX() + 1) + "," +
+                (currentCoordinate.getY() + 1) + ")");
 
          int randMove = (int) Math.floor(Math.random() * 4);
         Action currentAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
 
-        System.out.println(gridMap.get(currentCoordinate));
+        //System.out.println(gridMap.get(currentCoordinate));
 
         //while havent reached a goal state explore
         while(gridMap.get(currentCoordinate) == 0){
@@ -188,6 +198,23 @@ public class QLearningMain {
             //agent.updateQValue(prevCoordinate, currentCoordinate, nextAction, qValues);
 
         }
+        System.out.println("End Coordinate: " + (currentCoordinate.getX() + 1) + ", " + (currentCoordinate.getY() + 1));
+        printQValuesCoordinates(qValues);
     }
+
+    public static void printQValuesCoordinates(HashMap<Coordinate, HashMap<Action, Float>> hashMapSlots) {
+        for (Map.Entry<Coordinate, HashMap<Action, Float>> qEntry : hashMapSlots.entrySet()) {
+            System.out.println("At coordinate + " + (qEntry.getKey().getX() + 1) + ", " + (qEntry.getKey().getY() + 1) + " the q values are:");
+            printQValues(qEntry.getValue());
+        }
+    }
+
+    public static void printQValues(HashMap<Action, Float> floatVales){
+        for (Map.Entry<Action, Float> qEntry : floatVales.entrySet()) {
+            System.out.println(qEntry.getKey() + ": " + qEntry.getValue());
+        }
+    }
+
+
 
 }

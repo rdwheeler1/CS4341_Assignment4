@@ -104,7 +104,6 @@ public class Agent {
     public void updateQValue(Coordinate updatedState, Coordinate newState, Action prevAction, HashMap<Coordinate, HashMap<Action, Float>> qValues){
         float updatedValue = qValues.get(updatedState).get(prevAction);
         float newValue = getHighestQValue(newState, qValues);
-
         qValues.get(updatedState).replace(prevAction, calculateQValue(updatedValue, newValue));
     }
 
@@ -156,79 +155,100 @@ public class Agent {
     public Action getMove(Coordinate startCoord, Action prevAction , HashMap<Coordinate, HashMap<Action, Float>> qValues){
         Action move = null;
 
-        if(prevAction == Action.UP){
-            float a1 = qValues.get(startCoord).get(Action.RIGHT);
-            float a2 = qValues.get(startCoord).get(Action.LEFT);
-            float a3 = qValues.get(startCoord).get(Action.UP);
 
-            float max = Math.max(a1,a2);
-            max = Math.max(max,a3);
+        float a1 = qValues.get(startCoord).get(Action.RIGHT);
+        float a2 = qValues.get(startCoord).get(Action.LEFT);
+        float a3 = qValues.get(startCoord).get(Action.UP);
+        float a4 = qValues.get(startCoord).get(Action.DOWN);
 
-            if(max == a1){
-                move = Action.RIGHT;
-            }
-            else if(max == a2){
-                move = Action.LEFT;
-            }
-            else if(max ==a3){
-                move = Action.UP;
-            }
+        float max = Math.max(a1,a2);
+        float max2 = Math.max(a3,a4);
+        max = Math.max(max,max2);
 
+        if(max == a1){
+            move = Action.RIGHT;
         }
-        else if (prevAction == Action.DOWN){
-            float a1 = qValues.get(startCoord).get(Action.RIGHT);
-            float a2 = qValues.get(startCoord).get(Action.LEFT);
-            float a3 = qValues.get(startCoord).get(Action.DOWN);
-
-            float max = Math.max(a1,a2);
-            max = Math.max(max,a3);
-
-            if(max == a1){
-                move = Action.RIGHT;
-            }
-            else if(max == a2){
-                move = Action.LEFT;
-            }
-            else if(max ==a3){
-                move = Action.DOWN;
-            }
+        else if(max == a2){
+            move = Action.LEFT;
         }
-        else if(prevAction == Action.LEFT){
-            float a1 = qValues.get(startCoord).get(Action.DOWN);
-            float a2 = qValues.get(startCoord).get(Action.LEFT);
-            float a3 = qValues.get(startCoord).get(Action.UP);
-
-            float max = Math.max(a1,a2);
-            max = Math.max(max,a3);
-
-            if(max == a1){
-                move = Action.DOWN;
-            }
-            else if(max == a2){
-                move = Action.LEFT;
-            }
-            else if(max ==a3){
-                move = Action.UP;
-            }
+        else if(max == a3){
+            move = Action.UP;
         }
-        else if(prevAction == Action.RIGHT){
-            float a1 = qValues.get(startCoord).get(Action.DOWN);
-            float a2 = qValues.get(startCoord).get(Action.LEFT);
-            float a3 = qValues.get(startCoord).get(Action.UP);
+        else if(max == a4)
 
-            float max = Math.max(a1,a2);
-            max = Math.max(max,a3);
-
-            if(max == a1){
-                move = Action.DOWN;
-            }
-            else if(max == a2){
-                move = Action.LEFT;
-            }
-            else if(max ==a3){
-                move = Action.UP;
-            }
-        }
+//        if(prevAction == Action.UP){
+//            float a1 = qValues.get(startCoord).get(Action.RIGHT);
+//            float a2 = qValues.get(startCoord).get(Action.LEFT);
+//            float a3 = qValues.get(startCoord).get(Action.UP);
+//
+//            float max = Math.max(a1,a2);
+//            max = Math.max(max,a3);
+//
+//            if(max == a1){
+//                move = Action.RIGHT;
+//            }
+//            else if(max == a2){
+//                move = Action.LEFT;
+//            }
+//            else if(max ==a3){
+//                move = Action.UP;
+//            }
+//
+//        }
+//        else if (prevAction == Action.DOWN){
+//            float a1 = qValues.get(startCoord).get(Action.RIGHT);
+//            float a2 = qValues.get(startCoord).get(Action.LEFT);
+//            float a3 = qValues.get(startCoord).get(Action.DOWN);
+//
+//            float max = Math.max(a1,a2);
+//            max = Math.max(max,a3);
+//
+//            if(max == a1){
+//                move = Action.RIGHT;
+//            }
+//            else if(max == a2){
+//                move = Action.LEFT;
+//            }
+//            else if(max ==a3){
+//                move = Action.DOWN;
+//            }
+//        }
+//        else if(prevAction == Action.LEFT){
+//            float a1 = qValues.get(startCoord).get(Action.DOWN);
+//            float a2 = qValues.get(startCoord).get(Action.LEFT);
+//            float a3 = qValues.get(startCoord).get(Action.UP);
+//
+//            float max = Math.max(a1,a2);
+//            max = Math.max(max,a3);
+//
+//            if(max == a1){
+//                move = Action.DOWN;
+//            }
+//            else if(max == a2){
+//                move = Action.LEFT;
+//            }
+//            else if(max ==a3){
+//                move = Action.UP;
+//            }
+//        }
+//        else if(prevAction == Action.RIGHT){
+//            float a1 = qValues.get(startCoord).get(Action.DOWN);
+//            float a2 = qValues.get(startCoord).get(Action.LEFT);
+//            float a3 = qValues.get(startCoord).get(Action.UP);
+//
+//            float max = Math.max(a1,a2);
+//            max = Math.max(max,a3);
+//
+//            if(max == a1){
+//                move = Action.DOWN;
+//            }
+//            else if(max == a2){
+//                move = Action.LEFT;
+//            }
+//            else if(max ==a3){
+//                move = Action.UP;
+//            }
+//        }
 
         move = isDeflected(move);
 
