@@ -12,63 +12,57 @@ public class Agent {
         this.stepSize = 0.1F;
     }
 
-    // TODO: Add epsilon-greedy exploration
-    public void qFunction(Coordinate state, Action action, HashMap<Coordinate, HashMap<Action, Float>> qValues){
-        // New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
-        qEquation(state, action, qValues);
-    }
-
-    public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
-            HashMap<Action, Float>> qValues){
-
-        HashMap<Action, Float> qValueMap = qValues.get(currentState);
-        HashMap<Action, Float> copyOfCurrentQMap = qValues.get(currentState);
-        float currentQValue = qValues.get(currentState).get(action);
-        float alpha = reward;
-        float gamma = 0.9F;
-        float maxQValue = Collections.max(qValueMap.values());
-
-        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
-            if (qEntry.getValue() == maxQValue) {
-                action = qEntry.getKey();
-            }
-        }
-
-//        if(a == Action.UP){
-//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
-//                    qValues.get(s).get(Action.UP));
+//    public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
+//            HashMap<Action, Float>> qValues){
+//
+//        HashMap<Action, Float> qValueMap = qValues.get(currentState);
+//        HashMap<Action, Float> copyOfCurrentQMap = qValues.get(currentState);
+//        float currentQValue = qValues.get(currentState).get(action);
+//        float alpha = reward;
+//        float gamma = 0.9F;
+//        float maxQValue = Collections.max(qValueMap.values());
+//
+//        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
+//            if (qEntry.getValue() == maxQValue) {
+//                action = qEntry.getKey();
+//            }
 //        }
-//        else if (a == Action.DOWN){
-//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
-//                    qValues.get(s).get(Action.DOWN));
+//
+////        if(a == Action.UP){
+////            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
+////                    qValues.get(s).get(Action.UP));
+////        }
+////        else if (a == Action.DOWN){
+////            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.LEFT),
+////                    qValues.get(s).get(Action.DOWN));
+////        }
+////        else if(a == Action.LEFT){
+////            maxQValue = Math.fma(qValues.get(s).get(Action.DOWN), qValues.get(s).get(Action.LEFT),
+////                    qValues.get(s).get(Action.UP));
+////        }
+////        else if(a == Action.RIGHT){
+////            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.DOWN),
+////                    qValues.get(s).get(Action.UP));
+////        }
+//        float newQValue = currentQValue + alpha * (reward + (gamma * maxQValue) - currentQValue);
+//
+//        if (qValues.get(currentState).get(action) == currentQValue) {
+//            HashMap<Action, Float> actionMap = new HashMap<>();
+//            for (Action actionKey  : copyOfCurrentQMap.keySet()) {
+//                if (actionKey == action) {
+//                    actionMap.put(actionKey, newQValue);
+//                } else {
+//                    actionMap.put(actionKey, copyOfCurrentQMap.get(actionKey));
+//                }
+//            }
+//            qValues.put(currentState, actionMap);
 //        }
-//        else if(a == Action.LEFT){
-//            maxQValue = Math.fma(qValues.get(s).get(Action.DOWN), qValues.get(s).get(Action.LEFT),
-//                    qValues.get(s).get(Action.UP));
-//        }
-//        else if(a == Action.RIGHT){
-//            maxQValue = Math.fma(qValues.get(s).get(Action.RIGHT), qValues.get(s).get(Action.DOWN),
-//                    qValues.get(s).get(Action.UP));
-//        }
-        float newQValue = currentQValue + alpha * (reward + (gamma * maxQValue) - currentQValue);
-
-        if (qValues.get(currentState).get(action) == currentQValue) {
-            HashMap<Action, Float> actionMap = new HashMap<>();
-            for (Action actionKey  : copyOfCurrentQMap.keySet()) {
-                if (actionKey == action) {
-                    actionMap.put(actionKey, newQValue);
-                } else {
-                    actionMap.put(actionKey, copyOfCurrentQMap.get(actionKey));
-                }
-            }
-            qValues.put(currentState, actionMap);
-        }
-
-        qValues.get(currentState).put(action, newQValue);
-        System.out.println("NEW: QVALUE: " + qValues.get(currentState));
-        System.out.println("TEST: " + qValues.get(new Coordinate(0,0)));
-
-    }
+//
+//        qValues.get(currentState).put(action, newQValue);
+//        System.out.println("NEW: QVALUE: " + qValues.get(currentState));
+//        System.out.println("TEST: " + qValues.get(new Coordinate(0,0)));
+//
+//    }
 
     /**
      * Gets the best Action based on current state and current Q-values
@@ -96,11 +90,15 @@ public class Agent {
      * @return the highest q value
      */
     public float getHighestQValue(Coordinate givenState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
-        Action bestAction = null;
-        HashMap<Action, Float> qValueMap = qValues.get(givenState);
-        float maxQ = Collections.max(qValueMap.values());
-
-        return maxQ;
+        if(qValues.containsKey(givenState)){
+            Action bestAction = null;
+            HashMap<Action, Float> qValueMap = qValues.get(givenState);
+            float maxQ = Collections.max(qValueMap.values());
+            return maxQ;
+        }
+        else{
+            return Float.MIN_VALUE;
+        }
     }
 
     public void updateQValue(Coordinate updatedState, Coordinate newState, Action prevAction, HashMap<Coordinate, HashMap<Action, Float>> qValues){

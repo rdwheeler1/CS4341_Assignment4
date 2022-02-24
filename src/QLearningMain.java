@@ -175,11 +175,17 @@ public class QLearningMain {
             Action nextAction = agent.getBestAction(currentCoordinate,qValues);
 
             //take that action
-            Coordinate prevCoordinate = currentCoordinate.copy();
-            currentCoordinate = agent.move(currentCoordinate,desiredProb,nextAction);
+//            Coordinate prevCoordinate = currentCoordinate.copy();
+//            Coordinate tempCoordinate = agent.move(currentCoordinate, desiredProb, nextAction);
+            Coordinate tempCoordinate = agent.move(currentCoordinate, desiredProb, nextAction);
+            if(gridMap.containsKey(tempCoordinate)){
+                Coordinate prevCoordinate = currentCoordinate.copy();
+                currentCoordinate = tempCoordinate;
+                agent.updateQValue(prevCoordinate,currentCoordinate,nextAction,qValues);
+            }
 
             //update previous state with max values from state im on now
-            agent.updateQValue(prevCoordinate, currentCoordinate, nextAction, qValues);
+            //agent.updateQValue(prevCoordinate, currentCoordinate, nextAction, qValues);
 
         }
     }
