@@ -34,7 +34,7 @@ public class QLearningMain {
             while ((System.currentTimeMillis() - startTime) / 1000 < timeToRun){
                 runQLearning(gridMap, qValues, desiredProb, reward);
             }
-            printPath(rows,cols,qValues);
+            printPath(rows,cols,qValues, gridMap);
             scanner.close();
         } catch (IOException i) {
             System.out.println("File Exception");
@@ -82,13 +82,13 @@ public class QLearningMain {
                                          HashMap<Coordinate, HashMap<Action, Float>> qValues) {
         Action [] actions = {Action.UP, Action.LEFT, Action.RIGHT, Action.DOWN};
         Action [] goalActions = {Action.UP, Action.LEFT, Action.RIGHT, Action.DOWN};
-        HashMap<Action, Float> actionMap = new HashMap<>();
-
-        for (Action action : actions) {
-            actionMap.put(action, 0.0F);
-        }
 
         for (Coordinate key : gridMap.keySet()) {
+            HashMap<Action, Float> actionMap = new HashMap<>();
+
+            for (Action action : actions) {
+                actionMap.put(action, 0.0F);
+            }
             if (gridMap.get(key) == 0){
                 qValues.put(key, actionMap);
             }
@@ -154,27 +154,29 @@ public class QLearningMain {
         }
     }
 
-    public static void printPath(int row, int col, HashMap<Coordinate, HashMap<Action, Float>> qValues){
+    public static void printPath(int row, int col, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap){
         for (int i = 0; i< row; i++){
             for (int j= 0; j< col; j++){
                 float maxQ = Collections.max(qValues.get(new Coordinate(j,i)).values());
-                for (Map.Entry<Action, Float> qEntry : qValues.get(new Coordinate(j,i)).entrySet()) {
-                    if (qEntry.getValue() == maxQ) {
-                        if(qEntry.getKey().equals(Action.UP)){
-                            System.out.print(" ^ ");
-                            break;
-                        }
-                        else if(qEntry.getKey().equals(Action.DOWN)){
-                            System.out.print(" v ");
-                            break;
-                        }
-                        else if(qEntry.getKey().equals(Action.LEFT)){
-                            System.out.print(" < ");
-                            break;
-                        }
-                        else if(qEntry.getKey().equals(Action.RIGHT)){
-                            System.out.print(" > ");
-                            break;
+                if(gridMap.get(new Coordinate(j,i)) != 0){
+                    System.out.print(" O ");
+                }
+                else {
+                    for (Map.Entry<Action, Float> qEntry : qValues.get(new Coordinate(j, i)).entrySet()) {
+                        if (qEntry.getValue() == maxQ) {
+                            if (qEntry.getKey().equals(Action.UP)) {
+                                System.out.print(" ^ ");
+                                break;
+                            } else if (qEntry.getKey().equals(Action.DOWN)) {
+                                System.out.print(" v ");
+                                break;
+                            } else if (qEntry.getKey().equals(Action.LEFT)) {
+                                System.out.print(" < ");
+                                break;
+                            } else if (qEntry.getKey().equals(Action.RIGHT)) {
+                                System.out.print(" > ");
+                                break;
+                            }
                         }
                     }
                 }

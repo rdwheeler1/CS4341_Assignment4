@@ -111,7 +111,7 @@ public class Agent {
             Action bestAction = null;
             HashMap<Action, Float> qValueMap = qValues.get(givenState);
             float maxQ = Collections.max(qValueMap.values());
-            System.out.println(maxQ + "MAXQUEUE _______----___--_--_-_--_-_--");
+            //System.out.println(maxQ + "MAXQUEUE _______----___--_--_-_--_-_--");
             return maxQ;
         }
         else{
