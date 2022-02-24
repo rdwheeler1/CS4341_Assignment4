@@ -5,14 +5,22 @@ public class Agent {
     private float reward;
     private float gamma;
     private float stepSize;
+    private float epsilon;
+    private Action actionTaken;
 
     public Agent(float reward, float gamma){
         this.reward = reward;
         this.gamma = gamma;
         this.stepSize = 0.1F;
+        this.epsilon = 0.3F;
+        this.actionTaken = null;
     }
 
-//    public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
+    public Action getActionTaken() {
+        return actionTaken;
+    }
+
+    //    public void qEquation(Coordinate currentState, Action action, HashMap<Coordinate,
 //            HashMap<Action, Float>> qValues){
 //
 //        HashMap<Action, Float> qValueMap = qValues.get(currentState);
@@ -70,14 +78,23 @@ public class Agent {
      * @param qValues the current Q-values of the board
      * @return the best Action the agent will take
      */
-    public Action getBestAction(Coordinate currentState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
+    public Action getAction(Coordinate currentState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
         Action bestAction = null;
         HashMap<Action, Float> qValueMap = qValues.get(currentState);
         float maxQ = Collections.max(qValueMap.values());
+        float randomChance = (float) Math.random() * 1;
 
-        for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
-            if (qEntry.getValue() == maxQ) {
-                bestAction = qEntry.getKey();
+        if(randomChance < epsilon){
+            int randMove = (int) Math.floor(Math.random() * 4);
+            Action currentAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
+            bestAction = currentAction;
+        }
+        else{
+            for (Map.Entry<Action, Float> qEntry : qValueMap.entrySet()) {
+                if (qEntry.getValue() == maxQ) {
+                    bestAction = qEntry.getKey();
+                    break;
+                }
             }
         }
         return bestAction;
@@ -94,21 +111,29 @@ public class Agent {
             Action bestAction = null;
             HashMap<Action, Float> qValueMap = qValues.get(givenState);
             float maxQ = Collections.max(qValueMap.values());
+            System.out.println(maxQ + "MAXQUEUE _______----___--_--_-_--_-_--");
             return maxQ;
         }
         else{
-            return Float.MIN_VALUE;
+            return -10F;
         }
     }
 
     public void updateQValue(Coordinate updatedState, Coordinate newState, Action prevAction, HashMap<Coordinate, HashMap<Action, Float>> qValues){
         float updatedValue = qValues.get(updatedState).get(prevAction);
-        float newValue = getHighestQValue(newState, qValues);
+        float newValue;
+        if(!qValues.containsKey(newState)){
+            newValue = -10F;
+        }
+        else{
+            newValue = getHighestQValue(newState, qValues);
+        }
         qValues.get(updatedState).replace(prevAction, calculateQValue(updatedValue, newValue));
     }
 
     public float calculateQValue(float oldValue, float newValue){
         //New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
+        System.out.println((oldValue + stepSize * (reward + gamma * (newValue) - oldValue)) + "===================================");
         return (oldValue + stepSize * (reward + gamma * (newValue) - oldValue));
     }
 
@@ -126,27 +151,63 @@ public class Agent {
 
         // Takes the desired action
         if (chance < desiredProb) {
-            newState = switch (action) {
-                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
-                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
-                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
-                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            switch (action) {
+                case UP:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() - 1);
+                    actionTaken = Action.UP;
+                    break;
+                case DOWN:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() + 1);
+                    actionTaken = Action.DOWN;
+                    break;
+                case LEFT:
+                    newState = new Coordinate(currentState.getX() - 1, currentState.getY());
+                    actionTaken = Action.LEFT;
+                    break;
+                case RIGHT:
+                    newState = new Coordinate(currentState.getX() + 1, currentState.getY());
+                    actionTaken = Action.RIGHT;
+                    break;
             };
         // Takes a deflected action
         } else if (chance < desiredProb + deflectionChance) {
-            newState = switch (deflectLeft(action)) {
-                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
-                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
-                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
-                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            switch (deflectLeft(action)) {
+                case UP:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() - 1);
+                    actionTaken = Action.UP;
+                    break;
+                case DOWN:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() + 1);
+                    actionTaken = Action.DOWN;
+                    break;
+                case LEFT:
+                    newState = new Coordinate(currentState.getX() - 1, currentState.getY());
+                    actionTaken = Action.LEFT;
+                    break;
+                case RIGHT:
+                    newState = new Coordinate(currentState.getX() + 1, currentState.getY());
+                    actionTaken = Action.RIGHT;
+                    break;
             };
         // Takes the other deflected action
         } else if (chance < (desiredProb + deflectionChance) + deflectionChance) {
-            newState = switch (deflectRight(action)) {
-                case UP -> new Coordinate(currentState.getX(), currentState.getY() - 1);
-                case DOWN -> new Coordinate(currentState.getX(), currentState.getY() + 1);
-                case LEFT -> new Coordinate(currentState.getX() - 1, currentState.getY());
-                case RIGHT -> new Coordinate(currentState.getX() + 1, currentState.getY());
+            switch (deflectRight(action)) {
+                case UP:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() - 1);
+                    actionTaken = Action.UP;
+                    break;
+                case DOWN:
+                    newState = new Coordinate(currentState.getX(), currentState.getY() + 1);
+                    actionTaken = Action.DOWN;
+                    break;
+                case LEFT:
+                    newState = new Coordinate(currentState.getX() - 1, currentState.getY());
+                    actionTaken = Action.LEFT;
+                    break;
+                case RIGHT:
+                    newState = new Coordinate(currentState.getX() + 1, currentState.getY());
+                    actionTaken = Action.RIGHT;
+                    break;
             };
         }
         return newState;
@@ -174,82 +235,9 @@ public class Agent {
         else if(max == a3){
             move = Action.UP;
         }
-        else if(max == a4)
-
-//        if(prevAction == Action.UP){
-//            float a1 = qValues.get(startCoord).get(Action.RIGHT);
-//            float a2 = qValues.get(startCoord).get(Action.LEFT);
-//            float a3 = qValues.get(startCoord).get(Action.UP);
-//
-//            float max = Math.max(a1,a2);
-//            max = Math.max(max,a3);
-//
-//            if(max == a1){
-//                move = Action.RIGHT;
-//            }
-//            else if(max == a2){
-//                move = Action.LEFT;
-//            }
-//            else if(max ==a3){
-//                move = Action.UP;
-//            }
-//
-//        }
-//        else if (prevAction == Action.DOWN){
-//            float a1 = qValues.get(startCoord).get(Action.RIGHT);
-//            float a2 = qValues.get(startCoord).get(Action.LEFT);
-//            float a3 = qValues.get(startCoord).get(Action.DOWN);
-//
-//            float max = Math.max(a1,a2);
-//            max = Math.max(max,a3);
-//
-//            if(max == a1){
-//                move = Action.RIGHT;
-//            }
-//            else if(max == a2){
-//                move = Action.LEFT;
-//            }
-//            else if(max ==a3){
-//                move = Action.DOWN;
-//            }
-//        }
-//        else if(prevAction == Action.LEFT){
-//            float a1 = qValues.get(startCoord).get(Action.DOWN);
-//            float a2 = qValues.get(startCoord).get(Action.LEFT);
-//            float a3 = qValues.get(startCoord).get(Action.UP);
-//
-//            float max = Math.max(a1,a2);
-//            max = Math.max(max,a3);
-//
-//            if(max == a1){
-//                move = Action.DOWN;
-//            }
-//            else if(max == a2){
-//                move = Action.LEFT;
-//            }
-//            else if(max ==a3){
-//                move = Action.UP;
-//            }
-//        }
-//        else if(prevAction == Action.RIGHT){
-//            float a1 = qValues.get(startCoord).get(Action.DOWN);
-//            float a2 = qValues.get(startCoord).get(Action.LEFT);
-//            float a3 = qValues.get(startCoord).get(Action.UP);
-//
-//            float max = Math.max(a1,a2);
-//            max = Math.max(max,a3);
-//
-//            if(max == a1){
-//                move = Action.DOWN;
-//            }
-//            else if(max == a2){
-//                move = Action.LEFT;
-//            }
-//            else if(max ==a3){
-//                move = Action.UP;
-//            }
-//        }
-
+        else if(max == a4){
+            move = Action.DOWN;
+        }
         move = isDeflected(move);
 
         return move;

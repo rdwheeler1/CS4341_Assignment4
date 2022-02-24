@@ -17,19 +17,11 @@ public class Coordinate {
     public Coordinate move(Action a){
         int x = this.x;
         int y = this.y;
-        switch (a){
-            case UP:
-                y--;
-                break;
-            case DOWN:
-                y++;
-                break;
-            case RIGHT:
-                x++;
-                break;
-            case LEFT:
-                    x--;
-                    break;
+        switch (a) {
+            case UP -> y--;
+            case DOWN -> y++;
+            case RIGHT -> x++;
+            case LEFT -> x--;
         }
         return new Coordinate(x,y);
     }
