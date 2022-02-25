@@ -109,7 +109,7 @@ public class QLearningMain {
     // TODO: Final submission: output the policy (the path of our grid)
     public static void runQLearning(HashMap<Coordinate, Integer> gridMap, HashMap<Coordinate,
                 HashMap<Action, Float>> qValues, float desiredProb, float reward) {
-        Agent agent = new Agent(reward, 1.0F);
+        Agent agent = new Agent(reward, 0.9F);
         Random random = new Random();
 
         List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
@@ -137,9 +137,7 @@ public class QLearningMain {
             if(gridMap.containsKey(tempCoordinate)){
                 currentCoordinate = tempCoordinate;
             }
-
             currentAction = agent.getAction(currentCoordinate,qValues);
-
         }
         System.out.println("End Coordinate: (" + currentCoordinate.getX() + ","
                 + currentCoordinate.getY() + ")");

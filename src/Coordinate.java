@@ -1,7 +1,8 @@
 import java.util.Objects;
 
 public class Coordinate {
-    private int x, y;
+    private final int x;
+    private final int y;
 
     public Coordinate(int x, int y){
         this.x = x;
@@ -14,6 +15,7 @@ public class Coordinate {
         return new Coordinate(x,y);
     }
 
+    // TODO: Make sure we don't need this before submission
     public Coordinate move(Action a){
         int x = this.x;
         int y = this.y;

@@ -2,17 +2,17 @@ import java.util.*;
 
 public class Agent {
 
-    private float reward;
-    private float gamma;
-    private float stepSize;
-    private float epsilon;
+    private final float reward;
+    private final float gamma;
+    private final float stepSize;
+    private final float epsilon;
     private Action actionTaken;
 
     public Agent(float reward, float gamma){
         this.reward = reward;
         this.gamma = gamma;
         this.stepSize = 0.1F;
-        this.epsilon = 0.3F;
+        this.epsilon = 0.1F;
         this.actionTaken = null;
     }
 
