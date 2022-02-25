@@ -6,7 +6,6 @@ public class QLearningMain {
 
     public static void main(String[] args) {
 
-        // TODO: Add more test grids to test
         String filename = args[0];
         float timeToRun = Float.parseFloat(args[1]);
         float desiredProb = Float.parseFloat(args[2]);
@@ -106,7 +105,13 @@ public class QLearningMain {
         }
     }
 
-    // TODO: Final submission: output the policy (the path of our grid)
+    /**
+     * runs q Learning until end state is found
+     * @param gridMap the map to explore
+     * @param qValues a hashmap of the q values
+     * @param desiredProb the desired probability to take the intended path
+     * @param reward the reward given for each movement
+     */
     public static void runQLearning(HashMap<Coordinate, Integer> gridMap, HashMap<Coordinate,
                 HashMap<Action, Float>> qValues, float desiredProb, float reward) {
         Agent agent = new Agent(reward);
@@ -144,6 +149,10 @@ public class QLearningMain {
 //        printQValuesCoordinates(qValues);
     }
 
+    /**
+     * prints the q values of the q values hashmap
+     * @param hashMapSlots qvalues hash map
+     */
     public static void printQValuesCoordinates(HashMap<Coordinate, HashMap<Action, Float>> hashMapSlots) {
         for (Map.Entry<Coordinate, HashMap<Action, Float>> qEntry : hashMapSlots.entrySet()) {
             System.out.println("At coordinate (" + qEntry.getKey().getX() + "," + qEntry.getKey().getY() + ") the q values are:");
@@ -151,6 +160,10 @@ public class QLearningMain {
         }
     }
 
+    /**
+     * prints the q values of a single coordinate
+     * @param floatVales hash map with the 4 directions
+     */
     public static void printQValues(HashMap<Action, Float> floatVales){
         for (Map.Entry<Action, Float> qEntry : floatVales.entrySet()) {
             System.out.println(qEntry.getKey() + ": " + qEntry.getValue());
@@ -158,6 +171,13 @@ public class QLearningMain {
         System.out.println();
     }
 
+    /**
+     * prints a grid showing the best action found for each coordinate
+     * @param row the number of rows in the gridworld
+     * @param col the number of columns in the gridworld
+     * @param qValues the hashmap of q values for each coordinate
+     * @param gridMap the grid world
+     */
     public static void printPolicy(int row, int col, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap) {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {

@@ -16,6 +16,9 @@ public class Agent {
         this.actionTaken = null;
     }
 
+    /**
+     * @return the most recent action taken
+     */
     public Action getActionTaken() {
         return actionTaken;
     }
@@ -64,6 +67,13 @@ public class Agent {
         }
     }
 
+    /**
+     * updates a q value based on the q learning formula, value of -10F for out of bounds moves
+     * @param updatedState the previous state that is getting updated
+     * @param newState the current state after an action was taken
+     * @param prevAction the action taken from the updated state to the new state
+     * @param qValues the hashmap of q values
+     */
     public void updateQValue(Coordinate updatedState, Coordinate newState, Action prevAction, HashMap<Coordinate, HashMap<Action, Float>> qValues){
         float updatedValue = qValues.get(updatedState).get(prevAction);
         float newValue;
@@ -76,6 +86,11 @@ public class Agent {
         qValues.get(updatedState).replace(prevAction, calculateQValue(updatedValue, newValue));
     }
 
+    /**
+     * @param oldValue old q value
+     * @param newValue max q value of actions from new state
+     * @return the new qValue
+     */
     public float calculateQValue(float oldValue, float newValue){
         return (oldValue + stepSize * (reward + gamma * (newValue) - oldValue));
     }
@@ -156,6 +171,10 @@ public class Agent {
         return newState;
     }
 
+    /**
+     * @param a current action
+     * @return the current action deflected left
+     */
     public Action deflectLeft(Action a){
         Action newAction = a;
         switch (a){
@@ -175,6 +194,10 @@ public class Agent {
         return newAction;
     }
 
+    /**
+     * @param a current action
+     * @return the current action deflected left
+     */
     public Action deflectRight(Action a){
         Action newAction = a;
         switch (a){
