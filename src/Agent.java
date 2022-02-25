@@ -12,7 +12,7 @@ public class Agent {
         this.reward = reward;
         this.gamma = 0.9F;
         this.stepSize = 0.1F;
-        this.epsilon = 0.5F;
+        this.epsilon = 0.1F;
         this.actionTaken = null;
     }
 
