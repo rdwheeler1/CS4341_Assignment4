@@ -15,19 +15,6 @@ public class Coordinate {
         return new Coordinate(x,y);
     }
 
-    // TODO: Make sure we don't need this before submission
-    public Coordinate move(Action a){
-        int x = this.x;
-        int y = this.y;
-        switch (a) {
-            case UP -> y--;
-            case DOWN -> y++;
-            case RIGHT -> x++;
-            case LEFT -> x--;
-        }
-        return new Coordinate(x,y);
-    }
-
     public int getX() {
         return x;
     }

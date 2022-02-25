@@ -109,7 +109,7 @@ public class QLearningMain {
     // TODO: Final submission: output the policy (the path of our grid)
     public static void runQLearning(HashMap<Coordinate, Integer> gridMap, HashMap<Coordinate,
                 HashMap<Action, Float>> qValues, float desiredProb, float reward) {
-        Agent agent = new Agent(reward, 0.9F);
+        Agent agent = new Agent(reward);
         Random random = new Random();
 
         List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
@@ -119,8 +119,8 @@ public class QLearningMain {
             currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
         }
 
-        System.out.println("RANDOM START: (" + currentCoordinate.getX() + "," +
-                currentCoordinate.getY() + ")");
+//        System.out.println("RANDOM START: (" + currentCoordinate.getX() + "," +
+//                currentCoordinate.getY() + ")");
 
         int randMove = (int) Math.floor(Math.random() * 4);
         Action currentAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
@@ -139,9 +139,9 @@ public class QLearningMain {
             }
             currentAction = agent.getAction(currentCoordinate,qValues);
         }
-        System.out.println("End Coordinate: (" + currentCoordinate.getX() + ","
-                + currentCoordinate.getY() + ")");
-        printQValuesCoordinates(qValues);
+//        System.out.println("End Coordinate: (" + currentCoordinate.getX() + ","
+//                + currentCoordinate.getY() + ")");
+//        printQValuesCoordinates(qValues);
     }
 
     public static void printQValuesCoordinates(HashMap<Coordinate, HashMap<Action, Float>> hashMapSlots) {
@@ -165,20 +165,25 @@ public class QLearningMain {
                 if (gridMap.get(new Coordinate(j, i)) != 0) {
                     System.out.print(" O ");
                 } else {
-                    for (Map.Entry<Action, Float> qEntry : qValues.get(new Coordinate(j, i)).entrySet()) {
-                        if (qEntry.getValue() == maxQ) {
-                            if (qEntry.getKey().equals(Action.UP)) {
-                                System.out.print(" ^ ");
-                                break;
-                            } else if (qEntry.getKey().equals(Action.DOWN)) {
-                                System.out.print(" v ");
-                                break;
-                            } else if (qEntry.getKey().equals(Action.LEFT)) {
-                                System.out.print(" < ");
-                                break;
-                            } else if (qEntry.getKey().equals(Action.RIGHT)) {
-                                System.out.print(" > ");
-                                break;
+                    if (qValues.get(new Coordinate(j, i)).get(Action.UP) == 0 && qValues.get(new Coordinate(j, i)).get(Action.DOWN) == 0 &&
+                            qValues.get(new Coordinate(j, i)).get(Action.LEFT) == 0 && qValues.get(new Coordinate(j, i)).get(Action.RIGHT) == 0) {
+                        System.out.print(" - ");
+                    } else {
+                        for (Map.Entry<Action, Float> qEntry : qValues.get(new Coordinate(j, i)).entrySet()) {
+                            if (qEntry.getValue() == maxQ) {
+                                if (qEntry.getKey().equals(Action.UP)) {
+                                    System.out.print(" ^ ");
+                                    break;
+                                } else if (qEntry.getKey().equals(Action.DOWN)) {
+                                    System.out.print(" v ");
+                                    break;
+                                } else if (qEntry.getKey().equals(Action.LEFT)) {
+                                    System.out.print(" < ");
+                                    break;
+                                } else if (qEntry.getKey().equals(Action.RIGHT)) {
+                                    System.out.print(" > ");
+                                    break;
+                                }
                             }
                         }
                     }
