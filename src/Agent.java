@@ -108,11 +108,10 @@ public class Agent {
      */
     public float getHighestQValue(Coordinate givenState, HashMap<Coordinate, HashMap<Action, Float>> qValues) {
         if(qValues.containsKey(givenState)){
-            Action bestAction = null;
+//            Action bestAction = null;
             HashMap<Action, Float> qValueMap = qValues.get(givenState);
-            float maxQ = Collections.max(qValueMap.values());
             //System.out.println(maxQ + "MAXQUEUE _______----___--_--_-_--_-_--");
-            return maxQ;
+            return Collections.max(qValueMap.values());
         }
         else{
             return -10F;
@@ -133,7 +132,6 @@ public class Agent {
 
     public float calculateQValue(float oldValue, float newValue){
         //New Q(s, a) = Current Q(s, a) + alpha(Reward + gamma * max(Q(s', a')) - Q(s, a))
-        System.out.println((oldValue + stepSize * (reward + gamma * (newValue) - oldValue)) + "===================================");
         return (oldValue + stepSize * (reward + gamma * (newValue) - oldValue));
     }
 
@@ -168,7 +166,7 @@ public class Agent {
                     newState = new Coordinate(currentState.getX() + 1, currentState.getY());
                     actionTaken = Action.RIGHT;
                     break;
-            };
+            }
         // Takes a deflected action
         } else if (chance < desiredProb + deflectionChance) {
             switch (deflectLeft(action)) {
@@ -188,7 +186,7 @@ public class Agent {
                     newState = new Coordinate(currentState.getX() + 1, currentState.getY());
                     actionTaken = Action.RIGHT;
                     break;
-            };
+            }
         // Takes the other deflected action
         } else if (chance < (desiredProb + deflectionChance) + deflectionChance) {
             switch (deflectRight(action)) {
@@ -208,14 +206,14 @@ public class Agent {
                     newState = new Coordinate(currentState.getX() + 1, currentState.getY());
                     actionTaken = Action.RIGHT;
                     break;
-            };
+            }
         }
         return newState;
     }
 
+    // TODO: Make sure we don't need this method before final submission
     public Action getMove(Coordinate startCoord, Action prevAction , HashMap<Coordinate, HashMap<Action, Float>> qValues){
         Action move = null;
-
 
         float a1 = qValues.get(startCoord).get(Action.RIGHT);
         float a2 = qValues.get(startCoord).get(Action.LEFT);
@@ -281,6 +279,7 @@ public class Agent {
         return newAction;
     }
 
+    // TODO: Make sure we don't need this method before final submission
     public Action isDeflected(Action move) {
         int deflectionChance = (int) Math.random() * 10;
         Action returnMove = move;

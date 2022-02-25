@@ -6,6 +6,7 @@ public class QLearningMain {
 
     public static void main(String[] args) {
 
+        // TODO: Add more test grids to test
         String filename = args[0];
         float timeToRun = Float.parseFloat(args[1]);
         float desiredProb = Float.parseFloat(args[2]);
@@ -29,12 +30,15 @@ public class QLearningMain {
             int [][] grid = createGrid(elements, rows, cols);
             gridMap = createGridMap(grid);
             initializeQValues(gridMap, qValues);
-
             long startTime = System.currentTimeMillis();
-            while ((System.currentTimeMillis() - startTime) / 1000 < timeToRun){
+            long elapsedTime;
+
+            do {
                 runQLearning(gridMap, qValues, desiredProb, reward);
-            }
-            printPath(rows,cols,qValues, gridMap);
+                elapsedTime = (new Date()).getTime() - startTime;
+            } while (elapsedTime < timeToRun * 1000);
+
+            printPolicy(rows,cols,qValues, gridMap);
             scanner.close();
         } catch (IOException i) {
             System.out.println("File Exception");
@@ -102,11 +106,11 @@ public class QLearningMain {
         }
     }
 
+    // TODO: Final submission: output the policy (the path of our grid)
     public static void runQLearning(HashMap<Coordinate, Integer> gridMap, HashMap<Coordinate,
                 HashMap<Action, Float>> qValues, float desiredProb, float reward) {
         Agent agent = new Agent(reward, 1.0F);
         Random random = new Random();
-
 
         List<Coordinate> coordinateKeyList = new ArrayList<>(gridMap.keySet());
         Coordinate currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
@@ -115,10 +119,10 @@ public class QLearningMain {
             currentCoordinate = coordinateKeyList.get(random.nextInt(coordinateKeyList.size()));
         }
 
-        System.out.println("RANDOM START: (" + (currentCoordinate.getX() + 1) + "," +
-                (currentCoordinate.getY() + 1) + ")");
+        System.out.println("RANDOM START: (" + currentCoordinate.getX() + "," +
+                currentCoordinate.getY() + ")");
 
-         int randMove = (int) Math.floor(Math.random() * 4);
+        int randMove = (int) Math.floor(Math.random() * 4);
         Action currentAction = new Action[]{Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT}[randMove];
 
         //while havent reached a goal state explore
@@ -137,13 +141,14 @@ public class QLearningMain {
             currentAction = agent.getAction(currentCoordinate,qValues);
 
         }
-        System.out.println("End Coordinate: " + (currentCoordinate.getX() + 1) + ", " + (currentCoordinate.getY() + 1));
+        System.out.println("End Coordinate: (" + currentCoordinate.getX() + ","
+                + currentCoordinate.getY() + ")");
         printQValuesCoordinates(qValues);
     }
 
     public static void printQValuesCoordinates(HashMap<Coordinate, HashMap<Action, Float>> hashMapSlots) {
         for (Map.Entry<Coordinate, HashMap<Action, Float>> qEntry : hashMapSlots.entrySet()) {
-            System.out.println("At coordinate " + (qEntry.getKey().getX() + 1) + ", " + (qEntry.getKey().getY() + 1) + " the q values are:");
+            System.out.println("At coordinate (" + qEntry.getKey().getX() + "," + qEntry.getKey().getY() + ") the q values are:");
             printQValues(qEntry.getValue());
         }
     }
@@ -152,16 +157,16 @@ public class QLearningMain {
         for (Map.Entry<Action, Float> qEntry : floatVales.entrySet()) {
             System.out.println(qEntry.getKey() + ": " + qEntry.getValue());
         }
+        System.out.println();
     }
 
-    public static void printPath(int row, int col, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap){
-        for (int i = 0; i< row; i++){
-            for (int j= 0; j< col; j++){
-                float maxQ = Collections.max(qValues.get(new Coordinate(j,i)).values());
-                if(gridMap.get(new Coordinate(j,i)) != 0){
+    public static void printPolicy(int row, int col, HashMap<Coordinate, HashMap<Action, Float>> qValues, HashMap<Coordinate, Integer> gridMap) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                float maxQ = Collections.max(qValues.get(new Coordinate(j, i)).values());
+                if (gridMap.get(new Coordinate(j, i)) != 0) {
                     System.out.print(" O ");
-                }
-                else {
+                } else {
                     for (Map.Entry<Action, Float> qEntry : qValues.get(new Coordinate(j, i)).entrySet()) {
                         if (qEntry.getValue() == maxQ) {
                             if (qEntry.getKey().equals(Action.UP)) {
@@ -184,7 +189,4 @@ public class QLearningMain {
             System.out.println();
         }
     }
-
-
-
 }
